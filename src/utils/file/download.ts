@@ -10,7 +10,7 @@ function downloadFileBlobByUrl(
   xhr.open('GET', url, true);
   xhr.responseType = 'blob';
   xhr.onload = function () {
-    var file = new Blob([oReq.response], {
+    var file = new Blob([xhr.response], {
       type: fileMime,
     });
     DownloadFile_Blob(file, fileName, fileMime, closeAfterDownload);
