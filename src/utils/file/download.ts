@@ -6,16 +6,19 @@ function downloadFileBlobByUrl(
   fileMime: string = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   closeAfterDownload: boolean = true
 ) {
-  var oReq = new XMLHttpRequest();
-  oReq.open('GET', url, true);
-  oReq.responseType = 'blob';
-  oReq.onload = function () {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.responseType = 'blob';
+  xhr.onload = function () {
     var file = new Blob([oReq.response], {
       type: fileMime,
     });
     DownloadFile_Blob(file, fileName, fileMime, closeAfterDownload);
   };
-  oReq.send();
+  xhr.onerror = function () {
+    console.error('could not download file')
+  }
+  xhr.send();
 }
 
 /**
