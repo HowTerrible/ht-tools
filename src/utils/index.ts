@@ -15,7 +15,7 @@ export function debounce(
   }
 ) {
   let timer: number | undefined = undefined;
-  return function anonymoous(...params) {
+  return function anonymous(...params) {
     let now = options.leading && !timer;
     clearTimeout(timer);
     timer = setTimeout(() => {
