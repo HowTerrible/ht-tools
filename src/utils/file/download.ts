@@ -1,10 +1,23 @@
+/**
+ * 下载相关工具
+ * 文件类型建议使用三方库mime
+ */
 import { HandleOpenNewWindow } from '.';
+
+export type DownloadOptionsType = {
+  /** 是否使用新窗口下载 */
+  downloadWithNewWindow?: boolean;
+  /** 下载后关闭新窗口, 仅在[downloadWithNewWindow]为true时启用 */
+  closeAfterDownload?: boolean;
+  /** 下载后等待多长时间关闭新窗口, 仅在[downloadWithNewWindow]和[closeAfterDownload]都为true时启用, 缺省值1000ms */
+  closeDuration?: number;
+};
 
 function downloadFileBlobByUrl(
   url: string,
   fileName: string,
   fileMime: string = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  closeAfterDownload: boolean = true
+  options: DownloadOptionsType
 ) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
@@ -13,11 +26,11 @@ function downloadFileBlobByUrl(
     var file = new Blob([xhr.response], {
       type: fileMime,
     });
-    DownloadFile_Blob(file, fileName, fileMime, closeAfterDownload);
+    DownloadFile_Blob(file, fileName, fileMime, options);
   };
   xhr.onerror = function () {
-    console.error('could not download file')
-  }
+    console.error('could not download file');
+  };
   xhr.send();
 }
 
@@ -31,9 +44,9 @@ export const DownloadFile_Url = (
   fileUrl: string,
   fileName: string,
   fileMime: string = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  closeAfterDownload: boolean = true
+  options: DownloadOptionsType
 ) => {
-  downloadFileBlobByUrl(fileUrl, fileName, fileMime, closeAfterDownload);
+  downloadFileBlobByUrl(fileUrl, fileName, fileMime, options);
 };
 
 /**
@@ -48,7 +61,7 @@ export const DownloadFile_Blob = (
   data: any,
   fileName: string,
   fileMime: string = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  closeAfterDownload: boolean = true
+  options: DownloadOptionsType
 ) => {
   if (!data) return;
 
@@ -62,10 +75,14 @@ export const DownloadFile_Blob = (
     blob = new Blob([data], { type: fileMime });
   }
 
-  const temp = HandleOpenNewWindow();
-  if (!temp.success) return temp;
-  /** 如果新窗口打开失败, 返回打开结果 */
-  const newWindow = temp.window;
+  /** 默认使用当前页面的window */
+  let newWindow: Window = window;
+  if (options && options.downloadWithNewWindow) {
+    const temp = HandleOpenNewWindow();
+    if (!temp.success) return temp;
+    /** 如果新窗口打开失败, 返回打开结果 */
+    newWindow = temp.window;
+  }
   const document = newWindow.document;
 
   if ('download' in document.createElement('a')) {
@@ -79,10 +96,10 @@ export const DownloadFile_Blob = (
     elink.style.display = 'none';
     elink.click();
     (newWindow as any).URL.revokeObjectURL(elink.href); // 释放URL 对象
-    if (closeAfterDownload) {
+    if (options && options.downloadWithNewWindow && options.closeAfterDownload) {
       setTimeout(() => {
         newWindow.close();
-      }, 1000);
+      }, (options && options.downloadWithNewWindow && options.closeAfterDownload && options.closeDuration) || 1000);
     }
   } else {
     if (navigator.msSaveBlob) {
