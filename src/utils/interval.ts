@@ -2,6 +2,9 @@
  * 基于setTimeout的不丢帧并修复了timeout误差的循环器
  * reference: https://segmentfault.com/a/1190000040397253
  * author: echeverra
+ *
+ * reference: https://segmentfault.com/a/1190000041208181
+ * author: wxp686
  */
 
 /** 循环器回调 type
@@ -13,16 +16,13 @@ export type IntervalCallbackType = (intervalIndex: number) => undefined | boolea
 export type IntervalOptionsType = {
   /** 时间间隔，默认1000ms */
   duration?: number;
-  /** timeout 更新时会触发此事件
-   * @param {number} timeoutKey timeout的key，可在定时器外部销毁定时器
-   */
-  onTimeoutChange?: (timeoutKey: number) => void;
 };
 
 /**
  * 不丢帧并修复了timeout误差的循环器
  * @param {function} callback 会在循环到达时触发. 参数是当前循环次数, 返回false将停止循环.
  * @param {object} options
+ * @returns {function} stopper 停止定时器函数
  */
 export function startInterval(callback: IntervalCallbackType, options?: IntervalOptionsType) {
   if (typeof callback !== 'function') {
@@ -39,6 +39,11 @@ export function startInterval(callback: IntervalCallbackType, options?: Interval
 
   countdown(timeout);
 
+  let stopFlag = false;
+  function stopper() {
+    stopFlag = true;
+  }
+
   /** 倒计时循环器，只负责循环，不操作内容 */
   function countdown(interval) {
     timeoutKey = setTimeout(function () {
@@ -49,7 +54,7 @@ export function startInterval(callback: IntervalCallbackType, options?: Interval
       const deviation = endTime - (startTime + countIndex * timeout);
       countIndex++;
 
-      if (callback(countIndex) === false) {
+      if (stopFlag || callback(countIndex) === false) {
         clearTimeout(timeoutKey);
         return;
       }
@@ -57,5 +62,6 @@ export function startInterval(callback: IntervalCallbackType, options?: Interval
       countdown(timeout - deviation);
     }, interval);
   }
-  options && typeof options.onTimeoutChange === 'function' && options.onTimeoutChange(timeoutKey);
+
+  return stopper;
 }
