@@ -1,7 +1,7 @@
 /**
  * 防抖
  * @param {Function} callback
- * @param {Obejct} options 包含两个参数, wait: 等待时间; leading: true: 触发后立即调用; false: 触发后等待时间后调用
+ * @param {Object} options 包含两个参数, wait: 等待时间; leading: true: 触发后立即调用; false: 触发后等待时间后调用
  * @returns 返回可被调用的函数
  */
 export function debounce(
