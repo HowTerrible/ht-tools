@@ -56,4 +56,11 @@ export function throttle(func, wait = 300) {
   };
 }
 
-export default { debounce, throttle };
+/**
+ * 生成唯一键
+ * @returns string UniqueKey
+ */
+export const GenerateUniqueKey = () =>
+  new Date().getTime().toString(32).substring(2) + Math.random().toString(32).substring(2);
+
+export default { debounce, throttle, GenerateUniqueKey };
