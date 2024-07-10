@@ -6,7 +6,7 @@
  * @param {Number} money 数字
  * @returns 转换后的字符串
  */
-function Money2CnUppercaseNumbers(input: number | string) {
+export function Money2CnUppercaseNumbers(input: number | string) {
   if (!isNaN(Number(input))) {
     console.error('input must be a number');
     return '';
