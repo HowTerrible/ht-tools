@@ -4,6 +4,7 @@
 
   const InlineTypeReg =
     /((\d+)[.。,，:：\s、]+)(\D[^,，.。;；:：、\(（\s\d]*)[.。,，:：\s、]?(\D*)/g;
+  const NameReg = /^(\D*)/;
 
   function main(input) {
     let inlineData = {};
@@ -13,7 +14,7 @@
         inlineData[dataLabel] = dataValue;
       }
     });
-    return `${Object.entries(inlineData)
+    return `${input.match(NameReg)[0].trim()} ${Object.entries(inlineData)
       .map((item) => `${item[1]}: ${item[0]}`)
       .join(', ')}
 
@@ -31,9 +32,15 @@ ${Object.entries(inlineData)
     tips: '会生成格式化后的注释和枚举',
   };
 
-  global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
+  global.doc2type
+    ? (global.doc2type[toolName] = tool)
+    : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
 
 typeof global !== 'undefined'
-  ? console.log(global.doc2type.parseComments.converter('aaa：1：bbb 2：ccc 3：ddd 4：eee'))
+  ? console.log(
+      global.doc2type.parseComments.converter(
+        'text parse comment: 1: aaa; 2: bbb; 3: ccc; 4: ddd; 5: eee'
+      )
+    )
   : null;
