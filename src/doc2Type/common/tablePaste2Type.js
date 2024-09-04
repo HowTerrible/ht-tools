@@ -9,26 +9,26 @@
 
   const typeConveter = (type) => {
     // 记录字段类型
-    let typestr = '';
+    let typeStr = '';
     switch (type) {
       case 'integer':
-        typestr = 'number';
+        typeStr = 'number';
         break;
       case 'integer []':
       case 'integer []':
       case 'integer[]':
-        typestr = 'number[]';
+        typeStr = 'number[]';
         break;
       case 'object []':
       case 'object []':
       case 'object[]':
-        typestr = 'object[]';
+        typeStr = 'object[]';
         break;
       default:
-        typestr = type;
+        typeStr = type;
         break;
     }
-    return typestr;
+    return typeStr;
   };
 
   function PasteHandler(event) {
@@ -40,7 +40,9 @@
           const html = event.clipboardData.getData('text/html');
           const doc = new DOMParser().parseFromString(html, 'text/html');
           // 加载所有的行
-          const trs = Array.from(doc.querySelectorAll('table tr.ant-table-row'));
+          const trs = Array.from(
+            doc.querySelectorAll('table tr.ant-table-row')
+          );
           const resultObj = [];
           /** td的内容分别是
            * 字段名 类型 必填 默认值 注释  */
@@ -103,7 +105,9 @@
             result.push(`/** ${cur.commets} */`);
             result.push(
               `${cur.field} ${cur.requiredStr} ${
-                cur.type === 'object[]' || cur.type === 'object' ? '' : cur.type + ';'
+                cur.type === 'object[]' || cur.type === 'object'
+                  ? ''
+                  : cur.type + ';'
               }`
             );
 
@@ -128,6 +132,7 @@
   }
 
   function main(input) {
+    result.unshift('\n');
     return result.join('\n');
   }
 
@@ -139,7 +144,11 @@
     converter: main,
     tips: '必须要从表格复制过来的内容. 如果复制的是文本框中的原表格数据, 将无法解析. 即需要粘贴板的内容type为text/html',
   };
-  global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
+  global.doc2type
+    ? (global.doc2type[toolName] = tool)
+    : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
 
-typeof global !== 'undefined' ? console.log(global.doc2type.tablePaste2Type.converter(``)) : null;
+typeof global !== 'undefined'
+  ? console.log(global.doc2type.tablePaste2Type.converter(``))
+  : null;
