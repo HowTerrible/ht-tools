@@ -174,7 +174,7 @@ export const MoneyCent2Yuan: (
  * 不处理错误情况 参数由 MoneyYuan2Cent 校验
  *
  * 修改此工具时必须通过的测试用例
- * [19.9, 35.41, 265818.84]
+ * [19.9, 35.41, 265818.84, 34.2, 14.6+86.05]
  */
 const doYuan2Cent = (money: string | number): string => {
   // 此方法不公开, money由 MoneyYuan2Cent 校验
