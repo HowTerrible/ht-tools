@@ -69,7 +69,7 @@ export const DownloadFile_Blob = (
   /** 如果返回的是blob格式, 直接使用
    * 如果不是blob格式, 可能是字节流字符串, 需要转成blob
    */
-  if (Object.prototype.toString.call(data) === '[object Blob]') {
+  if (Object.prototype.toString.call(data) === '[object Blob]') {
     blob = data;
   } else {
     blob = new Blob([data], { type: fileMime });
@@ -96,7 +96,11 @@ export const DownloadFile_Blob = (
     elink.style.display = 'none';
     elink.click();
     (newWindow as any).URL.revokeObjectURL(elink.href); // 释放URL 对象
-    if (options && options.downloadWithNewWindow && options.closeAfterDownload) {
+    if (
+      options &&
+      options.downloadWithNewWindow &&
+      options.closeAfterDownload
+    ) {
       setTimeout(() => {
         newWindow.close();
       }, (options && options.downloadWithNewWindow && options.closeAfterDownload && options.closeDuration) || 1000);
