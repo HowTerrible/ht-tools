@@ -16,7 +16,7 @@
     });
     return `${input.match(NameReg)[0].trim()} ${Object.entries(inlineData)
       .map((item) => `${item[1]}: ${item[0]}`)
-      .join(', ')}
+      .join(', ')} */
 
 ${Object.entries(inlineData)
   .map((item) => `${item[0]} = ${item[1]},`)
