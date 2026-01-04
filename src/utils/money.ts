@@ -1,3 +1,6 @@
+/** 两位小数金额校验正则 */
+export const MoneyReg = /^(([1-9]\d*)|\d)(\.\d{1,2})?$/;
+
 /**
  * 将金额转换为中文的大写数字
  * 上限千亿，两位小数
@@ -227,3 +230,4 @@ export const MoneyYuan2Cent: (value?: number | string) => moneyStrType = (
   }
 };
 //#endregion
+
