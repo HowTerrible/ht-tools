@@ -16,17 +16,13 @@
     const data = [];
     input.split('\n').forEach((item) => {
       item = item.trim();
-      item
-        ? data.push(
-            item
-              .split('=')
-              .map((item) => item.trim())
-              .reverse()
-              .join(': ')
-          )
-        : null;
+      if (!item) return;
+      const [name, value] = item
+        .split('=')
+        .map((part) => part.trim());
+      if (name && value) data.push(`${value}: ${name}`);
     });
-    return data && data.length ? data.join(', ') : '';
+    return data.length ? data.join(', ') : '';
   }
 
   /** 工具名，会注册到window.doc2type或global.doc2type中 */
@@ -38,18 +34,3 @@
   };
   global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
-
-typeof global !== 'undefined'
-  ? console.log(
-      global.doc2type.enum2Comments.converter(
-        `
-    aaa = 1,
-    bbb = 2,
-    ccc = 3,
-    ddd = 4,
-    eee = 5,
-    fff = 6,
-    `
-      )
-    )
-  : null;

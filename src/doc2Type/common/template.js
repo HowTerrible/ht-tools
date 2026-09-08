@@ -30,5 +30,3 @@
 
   global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
-
-typeof global !== 'undefined' ? console.log(global.doc2type['toolName'].converter()) : null;

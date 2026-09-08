@@ -66,6 +66,7 @@
         <div class="containerHeader">操作类型</div>
       </div>
       <div class="tips"></div>
+      <div class="tips error" style="color: red"></div>
 
       <div id="inputContainer" class="container">
         <div class="containerHeader">输入</div>
@@ -76,10 +77,11 @@
       <div id="outputContainer" class="container">
         <div class="containerHeader">输出</div>
         <textarea id="output" class="output"></textarea>
-        <input type="button" value="复制到粘贴板" onclick="onOutputClicked(event)" />
+        <input id="copyBtn" type="button" value="复制到粘贴板" onclick="onOutputClicked(event)" />
       </div>
     </div>
 
+    <script src="./helpers.js"></script>
     <script src="./tablePaste2Type.js"></script>
     <script src="./parseComments.js"></script>
     <script src="./json2Type.js"></script>
@@ -89,13 +91,13 @@
     <script src="./comments2ObjEnum.js"></script>
 
     <script>
+      const tipsDiv = document.querySelector('div.tips');
+      const errorDiv = document.querySelector('div.tips.error');
+
       const setTips = (type) => {
-        if (doc2type && doc2type[type]) {
-          if (doc2type[type].tips)
-            document.querySelector('div.tips').innerText = doc2type[type].tips
-              ? 'tips: ' + doc2type[type].tips
-              : '';
-        }
+        const tool = doc2type && doc2type[type];
+        tipsDiv.innerText = tool && tool.tips ? 'tips: ' + tool.tips : '';
+        if (errorDiv) errorDiv.innerText = '';
       };
 
       const operatesDiv = document.getElementById('operatesContainer');
@@ -105,6 +107,7 @@
             toolName: item[1].toolName,
             name: item[0],
           }))
+          .filter((item) => item.toolName)
           .forEach((item) => {
             const operateName = document.createElement('span');
             operateName.innerText = item.name;
@@ -132,37 +135,49 @@
 
       function onInputTransfer() {
         const textarea = document.getElementById('input');
+        const hasError = (msg) => {
+          if (errorDiv) errorDiv.innerText = msg || '';
+        };
+        hasError('');
         if (!textarea.value || !textarea.value.trim()) {
-          console.warn('empty input');
+          hasError('输入为空，请先粘贴内容');
           return;
         }
         const checkedRadio = document.querySelector('input[name=operateType]:checked');
-        if (!checkedRadio.value || !checkedRadio.value.trim()) {
-          console.warn('must choose one type');
+        if (!checkedRadio || !checkedRadio.value) {
+          hasError('请先选择转换类型');
           return;
         }
 
-        if (
-          typeof doc2type === 'undefined' ||
-          !doc2type[checkedRadio.value] ||
-          !doc2type[checkedRadio.value].converter ||
-          !(typeof doc2type[checkedRadio.value].converter === 'function')
-        ) {
-          console.warn('missing doc2type');
+        const tool = doc2type && doc2type[checkedRadio.value];
+        if (!tool || typeof tool.converter !== 'function') {
+          hasError('未找到对应的转换器');
           return;
         }
 
-        const result = doc2type[checkedRadio.value].converter(textarea.value);
-
-        let output = document.getElementById('output');
-        output.innerHTML = result;
+        const output = document.getElementById('output');
+        try {
+          output.value = tool.converter(textarea.value);
+        } catch (err) {
+          output.value = '';
+          hasError('转换失败：' + (err && err.message ? err.message : err));
+          console.error(err);
+        }
       }
 
       function onOutputClicked() {
-        let output = document.getElementById('output');
-        if (output.value) {
-          output.select();
-          if (document.execCommand('copy')) document.execCommand('copy');
+        const output = document.getElementById('output');
+        if (!output.value) return;
+        output.select();
+        output.setSelectionRange(0, output.value.length);
+        const copied = document.execCommand('copy')
+          || !!(navigator.clipboard && navigator.clipboard.writeText(output.value));
+        if (copied) {
+          const btn = document.getElementById('copyBtn');
+          if (btn) btn.value = '已复制';
+          setTimeout(() => {
+            if (btn) btn.value = '复制到粘贴板';
+          }, 1200);
         }
       }
     </script>

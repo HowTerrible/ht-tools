@@ -3,34 +3,29 @@
   'use strict';
 
   function main(input) {
-    const fieldsArr = input.split('\n');
-
-    const fields = [];
-    fieldsArr.forEach((item) => {
-      if (!item) return;
-      const splitted = item.split('\t');
-
-      let fieldType = '';
-      switch (splitted[1].trim()) {
-        case 'integer':
-          fieldType = 'number';
-          break;
-        default:
-          fieldType = splitted[1];
-          break;
-      }
-
-      fields.push({
-        field: splitted[0],
-        type: fieldType,
-        required: splitted[2] !== '非必须',
-        des: splitted[4],
+    if (!input || typeof input !== 'string') return '';
+    const fields = input
+      .split('\n')
+      .filter((item) => item && item.trim())
+      .map((item) => {
+        const splitted = item.split('\t');
+        const field = (splitted[0] || '').trim();
+        const required = splitted[2] !== '非必须';
+        const des = (splitted[4] || '').trim();
+        return {
+          field,
+          type: global.doc2type.helpers.normalizeType(splitted[1]),
+          required,
+          des,
+        };
       });
-    });
 
     return fields
       .filter((item) => item.field)
-      .map((item) => `/** ${item.des} */\n${item.field} ${item.required ? '' : '?'}: ${item.type};`)
+      .map(
+        (item) =>
+          `/** ${item.des || ''} */\n${item.field} ${item.required ? '' : '?'}: ${item.type || 'any'};`
+      )
       .join('\n');
   }
 
@@ -43,16 +38,3 @@
   };
   global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
-
-typeof global !== 'undefined'
-  ? console.log(
-      global.doc2type.docExcel2Type.converter(`					
-aaa	string	非必须		机构id	
-bbb	string	非必须		机构名称	
-ccc	integer	非必须		机构状态：1：正常，2：停用	
-ddd	integer	非必须		地址：省代码	
-eee	string	非必须		地址：省	
-fff	integer	非必须			
-`)
-    )
-  : null;

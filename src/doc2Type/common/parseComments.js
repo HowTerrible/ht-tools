@@ -2,18 +2,10 @@
 (function (global) {
   'use strict';
 
-  const InlineTypeReg =
-    /((\d+)[.。,，:：\s、]+)(\D[^,，.。;；:：、\(（\s\d]*)[.。,，:：\s、]?(\D*)/g;
   const NameReg = /^(\D*)/;
 
   function main(input) {
-    let inlineData = {};
-    input.replace(InlineTypeReg, function (...[a, b, dataValue, dataLabel]) {
-      //console.log(dataValue, dataLabel)
-      if (dataValue && dataLabel) {
-        inlineData[dataLabel] = dataValue;
-      }
-    });
+    const inlineData = global.doc2type.helpers.parseEnumComment(input);
     return `${input.match(NameReg)[0].trim()} ${Object.entries(inlineData)
       .map((item) => `${item[1]}: ${item[0]}`)
       .join(', ')} */
@@ -36,11 +28,3 @@ ${Object.entries(inlineData)
     ? (global.doc2type[toolName] = tool)
     : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
-
-typeof global !== 'undefined'
-  ? console.log(
-      global.doc2type.parseComments.converter(
-        'text parse comment: 1: aaa; 2: bbb; 3: ccc; 4: ddd; 5: eee'
-      )
-    )
-  : null;

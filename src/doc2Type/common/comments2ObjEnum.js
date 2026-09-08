@@ -1,10 +1,7 @@
-/** 注释转对象类型的枚举 */
+/** 注释转对象类型的枚举 并附带注释 */
 
 (function (global) {
   'use strict';
-
-  const InlineTypeReg =
-    /((\d+)[.。,，:：\s、]+)(\D[^,，.。;；:：、\(（\s\d]*)[.。,，:：\s、]?(\D*)/g;
 
   /**
    * 接受输入，返回输出
@@ -12,18 +9,15 @@
    * @returns
    */
   function main(input) {
-    const temp = {};
-
-    input.replace(InlineTypeReg, (...[a, b, dataValue, dataLabel]) => {
-      temp[dataLabel] = dataValue;
-    });
+    const temp = global.doc2type.helpers.parseEnumComment(input);
+    const quoteKey = global.doc2type.helpers.quoteKey;
 
     return `/** ${Object.entries(temp)
       .map((item) => `${item[0]}: ${item[1]}; `)
       .join('')}*/
 const unknowEnum = {
 ${Object.entries(temp)
-  .map((item) => `${item[0]}: ${item[1]},`)
+  .map((item) => `${quoteKey(item[0])}: ${item[1]},`)
   .join('\n')}
 };`;
   }
@@ -43,7 +37,3 @@ ${Object.entries(temp)
 
   global.doc2type ? (global.doc2type[toolName] = tool) : (global.doc2type = { [toolName]: tool });
 })(typeof window !== 'undefined' ? window : global);
-
-typeof global !== 'undefined'
-  ? console.log(global.doc2type['comments2ObjEnum'].converter(' aa:1, bb:2, cc:3'))
-  : null;
